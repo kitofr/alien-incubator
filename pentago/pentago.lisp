@@ -21,3 +21,12 @@
                   (loop for x below *square-size*
                         for slot = (aref board (+ x (* *square-size* y)))
                         do (format t "~a " (player-letter (first slot)))))))
+
+
+(defun game-tree (board player first-move)
+  (list player
+        board
+        (add-new-ball board
+                      player
+                      first-move
+                      (rotate-board board player first-move))))
