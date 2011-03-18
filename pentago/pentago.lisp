@@ -23,10 +23,15 @@
                         do (format t "~a " (player-letter (first slot)))))))
 
 
-(defun game-tree (board player first-move)
+(defun game-tree (board player square direction pos)
   (list player
         board
-        (add-new-ball board
-                      player
-                      first-move
-                      (rotate-board board player first-move))))
+        (rotate-square square
+                       direction
+                       (add-new-ball board player pos))))
+
+(defun add-new-ball (board player pos)
+  (setf b (make-array *board-size* :initial-contents (coerce board 'list)))
+  (setf (aref b pos) (list player))
+  b)
+
