@@ -30,6 +30,9 @@
                        direction
                        (add-new-ball board player pos))))
 
+(defun point2pos (x y)
+  (+ (mod x *square-size*) (* y *square-size*)))
+
 (defun add-new-ball (board player pos)
   (setf b (make-array *board-size* :initial-contents (coerce board 'list)))
   (setf (aref b pos) (list player))
