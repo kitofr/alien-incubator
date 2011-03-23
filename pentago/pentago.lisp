@@ -38,3 +38,8 @@
   (setf (aref b pos) (list player))
   b)
 
+(defun available-slots (lst index)
+  (if (eq 0 (car lst))
+    (list (index))
+    (available-slots (cdr lst) (+ 1 index))))
+
