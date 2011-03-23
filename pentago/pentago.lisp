@@ -42,7 +42,7 @@
   b)
 
 (defun available-slots (lst index)
-  (if (eq 0 (car lst))
-    (list (index))
-    (available-slots (cdr lst) (+ 1 index))))
+  (if (eq 0 (aref lst index))
+    (cons index)
+    (available-slots (cdr (aref lst index)) (+ 1 index))))
 
