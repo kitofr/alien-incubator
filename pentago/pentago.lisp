@@ -22,14 +22,13 @@
                         for slot = (aref board (+ x (* *square-size* y)))
                         do (format t "~a " (player-letter (first slot)))))))
 
-
-(defun game-tree (board player)
+(defun game-tree (board player square direction pos)
   (list player
         board
-        (rotate-square square
-                       direction
-                       player
-                       (add-new-ball board player pos))))
+        (rotate-move square
+                     direction
+                     player
+                     (add-ball-move board player pos))))
 
 (defun rotate-square (square direction player board)
   (game-tree (board player)))
@@ -37,9 +36,8 @@
 (defun point2pos (x y)
   (+ (mod x *square-size*) (* y *square-size*)))
 
-(defun add-new-ball (board player pos)
+(defun add-ball (board player pos)
   (setf b (make-array *board-size* :initial-contents (coerce board 'list)))
   (setf (aref b pos) (list player))
   b)
-
 
