@@ -8,7 +8,7 @@
 
 (defun gen-board ()
   (board-array (loop for n below *board-size*
-                     collect (list 0))))
+                     collect 0)))
 
 (defun player-letter (n)
   (if (eq n 0)
@@ -20,7 +20,7 @@
         do (progn (fresh-line)
                   (loop for x below *square-size*
                         for slot = (aref board (+ x (* *square-size* y)))
-                        do (format t "~a " (player-letter (first slot)))))))
+                        do (format t "~a " (player-letter slot))))))
 
 (defun game-tree (board player square direction pos)
   (list player
@@ -37,12 +37,11 @@
   (+ (mod x *square-size*) (* y *square-size*)))
 
 (defun add-ball (board player pos)
-  (setf b (make-array *board-size* :initial-contents (coerce board 'list)))
-  (setf (aref b pos) (list player))
+  (setf b (make-array *board-size* :initial-contents board))
+  (setf (aref b pos) player)
   b)
 
-(defun available-slots (lst index)
-  (if (eq 0 (aref lst index))
-    (cons index)
-    (available-slots (cdr (aref lst index)) (+ 1 index))))
-
+(defun available-slots (board)
+  (loop for i below *board-size*
+      if (eq 0 (aref board i))
+      append (list i)))
