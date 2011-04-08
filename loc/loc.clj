@@ -2,12 +2,18 @@
 
 (defn non-blank? [line] (if (re-find #"\S" line) true false))
 (defn non-svn? [file] (not (.contains (.toString file) ".svn")))
-(defn cs-source? [file] (and (not (.contains (.toString file) "designer")) (.endsWith (.toString file) ".cs")))
-(defn cs-loc [base-file]
+(defn source? [file, ext] (and (not (.contains (.toString file) "designer")) (.endsWith (.toString file) ext)))
+
+(defn loc [base-file ext]
   (reduce
     +
     (for [file (file-seq base-file)
-          :when (and (cs-source? file) (non-svn? file))]
+          :when (and (source? file ext) (non-svn? file))]
       (with-open [rdr (reader file)]
-                  (count (filter non-blank? (line-seq rdr)))))))
+        (count (filter non-blank? (line-seq rdr)))))))
 
+(defn count-loc [base-file]
+  (cons (.toString (java.util.Date.)) 
+        (cons (loc (java.io.File. base-file) ".rb") 
+              (cons (loc (java.io.File. base-file) ".cs") 
+                    (cons (loc (java.io.File. base-file) ".vb") ())))))
