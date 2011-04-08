@@ -14,6 +14,4 @@
 
 (defn count-loc [base-file]
   (cons (.toString (java.util.Date.)) 
-        (cons (loc (java.io.File. base-file) ".rb") 
-              (cons (loc (java.io.File. base-file) ".cs") 
-                    (cons (loc (java.io.File. base-file) ".vb") ())))))
+        (map #(loc (java.io.File. base-file) %) '(".cs" ".vb" ".vbs" ".rb" ".fs" ".fsx"))))
