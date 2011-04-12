@@ -1,4 +1,4 @@
-(use '[clojure.contrib.duck-streams :only (reader)])
+(use '[clojure.contrib.duck-streams :only (reader append-spit)])
 (use '[clojure.contrib.str-utils :only (str-join)])
 
 (defn non-blank? [line] (if (re-find #"\S" line) true false))
@@ -18,7 +18,12 @@
   (cons (.toString (java.util.Date.)) 
         (map #(loc (java.io.File. base-file) %) exts)))
 
-(defn format-output []
-  (let [headers (cons "date" exts)]
-    (str-join ";" headers)))
+(defn to-csv [base-file]
+  (str-join ";" (count-loc base-file)))
+
+(defn spit-to-file [file base-file]
+  (append-spit file (to-csv base-file)))
+
+(defn main []
+  (spit-to-file "C:\\Work\\kitofr\\alien-incubator\\loc\\data.csv" "c:\\Work\\cint\\trunk\\src\\"))
 
