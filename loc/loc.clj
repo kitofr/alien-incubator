@@ -3,7 +3,11 @@
 
 (defn non-blank? [line] (if (re-find #"\S" line) true false))
 (defn non-svn? [file] (not (.contains (.toString file) ".svn")))
-(defn source? [file, ext] (and (not (.contains (.toString file) "designer")) (.endsWith (.toString file) ext)))
+(defn source? [file, ext] 
+  (and 
+    (not (.contains (.toString file) "designer")) 
+    (not (.contains (.toString file) "min")) 
+    (.endsWith (.toString file) ext)))
 
 (defn loc [base-file ext]
   (reduce
