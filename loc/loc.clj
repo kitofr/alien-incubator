@@ -31,3 +31,12 @@
 (defn main []
   (spit-to-file "C:\\Work\\kitofr\\alien-incubator\\loc\\data.csv" "c:\\Work\\cint\\trunk\\src\\"))
 
+(defn all-files [base-file ext]
+  (for [file (file-seq base-file)
+        :when (and (source? file ext) (non-svn? file))]
+    file))
+
+(defn print-files [files]
+  (doseq [file files]
+    (println file)))
+
