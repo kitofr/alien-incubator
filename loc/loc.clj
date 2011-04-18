@@ -9,6 +9,11 @@
     (not (.contains (.toString file) "min")) 
     (.endsWith (.toString file) ext)))
 
+(defn all-files [base-file ext]
+  (for [file (file-seq base-file)
+        :when (and (source? file ext) (non-svn? file))]
+    file))
+
 (defn loc [base-file ext]
   (reduce
     +
@@ -23,18 +28,13 @@
         (map #(loc (java.io.File. base-file) %) exts)))
 
 (defn to-csv [base-file]
-  (str-join ";" (count-loc base-file)))
+  (format "%s\n" (str-join ";" (count-loc base-file))))
 
 (defn spit-to-file [file base-file]
   (append-spit file (to-csv base-file)))
 
 (defn main []
   (spit-to-file "C:\\Work\\kitofr\\alien-incubator\\loc\\data.csv" "c:\\Work\\cint\\trunk\\src\\"))
-
-(defn all-files [base-file ext]
-  (for [file (file-seq base-file)
-        :when (and (source? file ext) (non-svn? file))]
-    file))
 
 (defn print-files [files]
   (doseq [file files]
