@@ -34,7 +34,7 @@
   (append-spit file (to-csv base-file)))
 
 (defn main []
-  (spit-to-file "C:\\Work\\kitofr\\alien-incubator\\loc\\data.csv" "c:\\Work\\cint\\trunk\\src\\"))
+  (spit-to-file "C:\\Work\\kitofr\\alien-incubator\\loc\\data.csv" "c:\\Work\\cint\\main\\src\\"))
 
 (defn print-files [files]
   (doseq [file files]
