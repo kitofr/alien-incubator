@@ -15,11 +15,48 @@
 
 (defstruct animal :x :y :energy :dir :genes)
 
-;;(def *animals*
-;;  (list (struct-map :x (ash *width* -1)
-;;                    :y (ash *height* -1)
-;;                    :energy 1000
-;;                    :dir 0
-;;                    :genes (loop repeat 8
-;;                             collecting (1+ (rand-int 10))))))
+(def *animals*
+  (list (struct-map animal 
+                    :x 50;;(/ 2 *width*)
+                    :y 15;;(/ 2 *height*)
+                    :energy 1000
+                    :dir 0
+                    :genes (take 8
+                             (repeatedly #(rand-int 10))))))
+
+(defn move [animal]
+  (let [dir (:dir animal)
+        x (:x animal)
+        y (:y animal)]
+    (assoc animal :x (mod (+ x
+                             (cond (and (>= dir 2) (< dir 5)
+                                    (or (= dir 1) (= dir 5)) 0)
+                                      (true -1))
+                                   *width*)
+                             *width*))
+    (assoc animal :y (mod (+ y
+                             (cond (and (>= dir 0) (< dir 3))
+                                   (or (= dir 
+
+      
+                                      
+
+
+;;(defun move (animal)
+;;  (let ((dir (animal-dir animal))
+;;        (x (animal-x animal))
+;;        (y (animal-y animal)))
+;;    (setf (animal-x animal) (mod (+ x
+;;                                    (cond ((and (>= dir 2) (< dir 5)) 1)
+;;                                          ((or (= dir 1) (= dir 5)) 0)
+;;                                          (t -1))
+;;                                    *width*)
+;;                                 *width*))
+;;    (setf (animal-y animal) (mod (+ y
+;;                                    (cond ((and (>= dir 0) (< dir 3)) -1)
+;;                                          ((and (>= dir 4) (< dir 7)) 1)
+;;                                          (t 0))
+;;                                    *height*)
+;;                                 *height*))
+;;    (decf (animal-energy animal))))
 ;;
