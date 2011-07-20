@@ -34,13 +34,13 @@
                                :else -1)
                              width)
                           width)
-                   :y (mod (+ y
-                             (cond (and (>= dir 0) (< dir 3)) -1
-                                   (and (>= dir 4) (< dir 7)) 1
-                                   :else 0)
-                             height)
-                          height)
-                    :energy (dec (animal :energy)))))
+           :y (mod (+ y
+                      (cond (and (>= dir 0) (< dir 3)) -1
+                            (and (>= dir 4) (< dir 7)) 1
+                            :else 0)
+                      height)
+                   height)
+           :energy (dec (animal :energy)))))
 
 ;;(defun turn (animal)
 ;;  (let ((x (random (apply #'+ (animal-genes animal)))))
