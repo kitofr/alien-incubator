@@ -42,15 +42,15 @@
                    height)
            :energy (dec (animal :energy)))))
 
-;;(defun turn (animal)
-;;  (let ((x (random (apply #'+ (animal-genes animal)))))
-;;    (labels ((angle (genes x)
-;;               (let ((xnu (- x (car genes))))
-;;                 (if (< xnu 0)
-;;                     0
-;;                     (1+ (angle (cdr genes) xnu))))))
-;;        (setf (animal-dir animal)
-;;              (mod (+ (animal-dir animal) (angle (animal-genes animal) x)) 8)))))
+(defn turn [animal]
+  (let [x (rand-int (apply #'+ (animal :genes)))]
+    (letfn [(angle [genes x]
+            (let [xnu (- x (first genes))]
+                 (if (< xnu 0)
+                     0
+                 (+ 1 (angle (rest genes) xnu)))))]
+        (assoc animal :dir
+              (mod (+ (animal :dir) (angle (animal :genes ) x)) 8)))))
 ;;
 ;;(defun eat (animal)
 ;;  (let ((pos (cons (animal-x animal) (animal-y animal))))
