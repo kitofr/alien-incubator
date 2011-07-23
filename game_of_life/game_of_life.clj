@@ -45,18 +45,18 @@
 (defn turn [animal]
   (let [x (rand-int (apply #'+ (animal :genes)))]
     (letfn [(angle [genes x]
-            (let [xnu (- x (first genes))]
-                 (if (< xnu 0)
-                     0
-                 (+ 1 (angle (rest genes) xnu)))))]
-        (assoc animal :dir
-              (mod (+ (animal :dir) (angle (animal :genes ) x)) 8)))))
+                   (let [xnu (- x (first genes))]
+                     (if (< xnu 0)
+                       0
+                       (+ 1 (angle (rest genes) xnu)))))]
+      (assoc animal :dir
+             (mod (+ (animal :dir) (angle (animal :genes ) x)) 8)))))
 
 (defn eat [animal]
   (let [pos (list (animal :x) (animal :y))]
     (when plants (.hashCode pos))
-      (+ (animal :energy) plant-energy)
-      (pos plants :none)))
+    (+ (animal :energy) plant-energy)
+    (pos plants :none)))
 
 ;;(defparameter *reproduction-energy* 200)
 ;;
