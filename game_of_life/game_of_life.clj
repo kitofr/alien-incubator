@@ -2,11 +2,11 @@
 (def height 30)
 (def jungle '(45 10 10 10))
 (def plant-energy 80)
-(def plants #{})
+(def plants {})
 
 (defn random-plant [left top width height]
-  (let [pos (cons (+ left (rand-int width)) (list (+ top (rand-int height))))]
-    (conj plants (.hashCode pos))))
+  (let [pos (list (+ left (rand-int width)) (list (+ top (rand-int height))))]
+    (assoc plants (.hashCode pos) true)))
 
 (defn add-plants []
   (apply #'random-plant jungle)
@@ -51,13 +51,13 @@
                  (+ 1 (angle (rest genes) xnu)))))]
         (assoc animal :dir
               (mod (+ (animal :dir) (angle (animal :genes ) x)) 8)))))
-;;
-;;(defun eat (animal)
-;;  (let ((pos (cons (animal-x animal) (animal-y animal))))
-;;    (when (gethash pos *plants*)
-;;      (incf (animal-energy animal) *plant-energy*)
-;;      (remhash pos *plants*))))
-;;
+
+(defn eat [animal]
+  (let [pos (list (animal :x) (animal :y))]
+    (when plants (.hashCode pos))
+      (+ (animal :energy) plant-energy)
+      (pos plants :none)))
+
 ;;(defparameter *reproduction-energy* 200)
 ;;
 ;;(defun reproduce (animal)
