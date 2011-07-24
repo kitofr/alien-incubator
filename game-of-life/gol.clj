@@ -2,11 +2,11 @@
 (def height 30)
 (def jungle '(45 10 10 10))
 (def plant-energy 80)
-(def plants {})
+(def plants (ref {}))
 
 (defn random-plant [left top width height]
   (let [pos (list (+ left (rand-int width)) (list (+ top (rand-int height))))]
-    (assoc plants (.hashCode pos) true)))
+    (dosync (alter plants assoc (.hashCode pos) true))))
 
 (defn add-plants []
   (apply #'random-plant jungle)
@@ -53,7 +53,7 @@
              (mod (+ (animal :dir) (angle (animal :genes ) x)) 8)))))
 
 (defn eat [animal]
-  (let [pos (list (animal :x) (animal :y));;]
+  (let [pos (list (animal :x) (animal :y))]
     (when plants (.hashCode pos))
     (+ (animal :energy) plant-energy)
     (pos plants :none)))
