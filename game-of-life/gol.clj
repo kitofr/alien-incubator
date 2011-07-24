@@ -14,26 +14,27 @@
 
 (defstruct animal :x :y :energy :dir :genes)
 
-(def animals
+(def animals (ref
   (list (struct-map animal 
                     :x (int (/ width 2))
                     :y (int (/ height 2))
                     :energy 1000
                     :dir 0
-                    :genes (take 8
-                                 (repeatedly #(rand-int 10))))))
+                    :genes (into [] (take 8
+                                 (repeatedly #(rand-int 10))))))))
 
 (defn move [animal]
   (let [dir (:dir animal)
         x (:x animal)
         y (:y animal)]
-    (assoc animal :x (mod (+ x
-                             (cond 
-                               (and (>= dir 2) (< dir 5)) 1
-                               (or (= dir 1) (= dir 5)) 0
-                               :else -1)
-                             width)
-                          width)
+    (assoc animal
+           :x (mod (+ x
+                      (cond 
+                        (and (>= dir 2) (< dir 5)) 1
+                        (or (= dir 1) (= dir 5)) 0
+                        :else -1)
+                      width)
+                   width)
            :y (mod (+ y
                       (cond (and (>= dir 0) (< dir 3)) -1
                             (and (>= dir 4) (< dir 7)) 1
@@ -60,17 +61,19 @@
 
 (def reproduction-energy 200)
 
-;;(defun reproduce (animal)
-;;  (let ((e (animal-energy animal)))
-;;    (when (>= e *reproduction-energy*)
-;;      (setf (animal-energy animal) (ash e -1))
-;;      (let ((animal-nu (copy-structure animal))
-;;            (genes     (copy-list (animal-genes animal)))
-;;            (mutation  (random 8)))
-;;        (setf (nth mutation genes) (max 1 (+ (nth mutation genes) (random 3) -1)))
-;;        (setf (animal-genes animal-nu) genes)
-;;        (push animal-nu *animals*)))))
-;;
+(defn reproduce [animal]
+  (let [e (animal :energy)]
+    (when (>= e reproduction-energy)
+      (assoc animal :energy (int (/ e 2))
+      (let [animal-nu animal
+            genes     (animal :genes)
+            mutation  (rand-int 8)]
+        (assoc animal-nu :genes mutation
+          (max 1 (+ (nth genes mutation) (rand-int 3) -1))
+        ))))))
+      ;  (assoc (animal-nu :genes) genes)
+      ;  (push animal-nu *animals*)))))
+
 ;;(defun update-world ()
 ;;  (setf *animals* (remove-if (lambda (animal)
 ;;                                 (<= (animal-energy animal) 0))
