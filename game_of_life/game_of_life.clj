@@ -53,13 +53,13 @@
              (mod (+ (animal :dir) (angle (animal :genes ) x)) 8)))))
 
 (defn eat [animal]
-  (let [pos (list (animal :x) (animal :y))]
+  (let [pos (list (animal :x) (animal :y));;]
     (when plants (.hashCode pos))
     (+ (animal :energy) plant-energy)
     (pos plants :none)))
 
-;;(defparameter *reproduction-energy* 200)
-;;
+(def reproduction-energy 200)
+
 ;;(defun reproduce (animal)
 ;;  (let ((e (animal-energy animal)))
 ;;    (when (>= e *reproduction-energy*)
@@ -83,7 +83,7 @@
 ;;        *animals*)
 ;;  (add-plants))
 ;;
-;;(defun draw-world ()
+;; (defn draw-world []
 ;;  (loop for y
 ;;        below *height*
 ;;        do (progn (fresh-line)
