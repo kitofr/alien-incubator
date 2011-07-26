@@ -64,13 +64,14 @@
 (defn reproduce [animal]
   (let [e (animal :energy)]
     (when (>= e reproduction-energy)
-      (assoc animal :energy (int (/ e 2))
-      (let [animal-nu animal
+      (assoc animal :energy (int (/ e 2)))
+      (let [child animal
             genes     (animal :genes)
             mutation  (rand-int 8)]
-        (assoc animal-nu :genes mutation
-          (max 1 (+ (nth genes mutation) (rand-int 3) -1))
-        ))))))
+        child
+;;        (assoc animal-nu :genes mutation
+;;          (max 1 (+ (nth genes mutation) (rand-int 3) -1))
+        ))));;))
       ;  (assoc (animal-nu :genes) genes)
       ;  (push animal-nu *animals*)))))
 
