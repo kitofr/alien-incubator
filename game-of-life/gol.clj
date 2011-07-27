@@ -4,9 +4,14 @@
 (def plant-energy 80)
 (def plants (ref {}))
 
+(defn gethash [obj]
+  (if (= "1.1.0-master-SNAPSHOT" (clojure-version))
+    (.GetHashCode obj)
+    (.hashCode obj)))
+
 (defn random-plant [left top width height]
   (let [pos (list (+ left (rand-int width)) (list (+ top (rand-int height))))]
-    (dosync (alter plants assoc (.hashCode pos) true))))
+    (dosync (alter plants assoc (gethash pos) true))))
 
 (defn add-plants []
   (apply #'random-plant jungle)
@@ -55,22 +60,23 @@
 
 (defn eat [animal]
   (let [pos (list (animal :x) (animal :y))]
-    (when plants (.hashCode pos))
+    (when plants (gethash pos))
     (+ (animal :energy) plant-energy)
     (pos plants :none)))
 
 (def reproduction-energy 200)
 
+(defn mutate [animal]
+  (let [gene-index (rand-int 8)
+        new-genes (assoc (animal :genes) gene-index (max 1 (+ (nth (animal :genes) gene-index) (rand-int 3) -1)))]
+    new-genes))
+
 (defn reproduce [animal]
   (let [e (animal :energy)]
     (when (>= e reproduction-energy)
-      (assoc animal :energy (int (/ e 2)))
-      (let [child animal
-            genes     (animal :genes)
-            mutation  (rand-int 8)]
-        child
-;;        (assoc animal-nu :genes mutation
-;;          (max 1 (+ (nth genes mutation) (rand-int 3) -1))
+      (let [parent (assoc animal :energy (int (/ e 2))) 
+            new-genes (mutate animal)]
+        (list new-genes (parent :genes))
         ))));;))
       ;  (assoc (animal-nu :genes) genes)
       ;  (push animal-nu *animals*)))))
