@@ -74,11 +74,16 @@
 (defn add-child [child]
   (dosync (ref-set animals (conj @animals child))))
 
+(defn reduce-energy [animal]
+  (dosync (ref-set animal (assoc @animal :energy (/ (animal :energy) 2)))))
+;;(dosync (ref-set eve (assoc @eve :energy (/ (eve :energy) 2))))
+
 (defn reproduce [animal]
   (let [e (animal :energy)]
     (when (>= e reproduction-energy)
       (let [child (assoc animal :energy (int (/ e 2))) 
             new-genes (mutate animal)]
+        (reduce-energy animal)
         (add-child (assoc child :genes new-genes))))))
 ; lower the animal energy by half
 
