@@ -71,24 +71,23 @@
         new-genes (assoc (animal :genes) gene-index (max 1 (+ (nth (animal :genes) gene-index) (rand-int 3) -1)))]
     new-genes))
 
-(defn add-animal [animal]
-  (dosync (ref-set animals (conj @animals animal))))
+(defn add-animal [coll animal]
+  (conj coll animal))
 
 (defn reduce-energy-on [index]
   (let [animal (reduce-energy (nth @animals index))]
     (conj (remove #(= % (nth @animals index)) @animals) animal)))
 
 (defn reduce-energy [animal]
-  (assoc animal :energy (/ (animal :energy) 2)))
+  (assoc animal :energy (int (/ (animal :energy) 2))))
 
-(defn reproduce [animal]
-  (let [e (animal :energy)]
+(defn reproduce [index]
+  (let [animal (nth @animals index)
+        e (animal :energy)]
     (when (>= e reproduction-energy)
-      (let [child (assoc animal :energy (int (/ e 2))) 
+      (let [child (reduce-energy animal) 
             new-genes (mutate animal)]
-        ;(reduce-energy animal)
-        (add-animal (assoc child :genes new-genes))))))
-; lower the animal energy by half
+        (add-animal (reduce-energy-on index) (assoc child :genes new-genes))))))
 
 ;;(defun update-world ()
 ;;  (setf *animals* (remove-if (lambda (animal)
