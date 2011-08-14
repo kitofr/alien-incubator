@@ -19,8 +19,8 @@
 
 (defstruct animal :x :y :energy :dir :genes)
 
-(def animals (ref
-  (list (struct-map animal 
+(def animals 
+  (ref (list (struct-map animal 
                     :x (int (/ width 2))
                     :y (int (/ height 2))
                     :energy 1000
@@ -71,20 +71,23 @@
         new-genes (assoc (animal :genes) gene-index (max 1 (+ (nth (animal :genes) gene-index) (rand-int 3) -1)))]
     new-genes))
 
-(defn add-child [child]
-  (dosync (ref-set animals (conj @animals child))))
+(defn add-animal [animal]
+  (dosync (ref-set animals (conj @animals animal))))
+
+(defn reduce-energy-on [index]
+  (let [animal (reduce-energy (nth @animals index))]
+    (conj (remove #(= % (nth @animals index)) @animals) animal)))
 
 (defn reduce-energy [animal]
-  (dosync (ref-set animal (assoc @animal :energy (/ (animal :energy) 2)))))
-;;(dosync (ref-set eve (assoc @eve :energy (/ (eve :energy) 2))))
+  (assoc animal :energy (/ (animal :energy) 2)))
 
 (defn reproduce [animal]
   (let [e (animal :energy)]
     (when (>= e reproduction-energy)
       (let [child (assoc animal :energy (int (/ e 2))) 
             new-genes (mutate animal)]
-        (reduce-energy animal)
-        (add-child (assoc child :genes new-genes))))))
+        ;(reduce-energy animal)
+        (add-animal (assoc child :genes new-genes))))))
 ; lower the animal energy by half
 
 ;;(defun update-world ()
