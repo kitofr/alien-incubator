@@ -1,5 +1,5 @@
-(def width 100)
-(def height 30)
+(def width 10)
+(def height 10)
 (def jungle '(45 10 10 10))
 (def plant-energy 80)
 (def plants (ref {}))
@@ -106,28 +106,25 @@
         @animals)
   (add-plants))
 
-(defn nested-for
-  [f x y]
-  (map (fn [a]
-         (map (fn [b] 
-                (f a b)) y))
-       x))
+
+(defn animal-at [x y]
+  (some (fn [animal]
+          (and (= (animal :x) x)
+               (= (animal :y) y)))
+        @animals))
+
+(defn plant-at [x y]
+  (get @plants (gethash (list x y))))
 
 (defn draw-world []
-  (for [y (range height)
-        x (range width)
-        :while (< y x)]
-    (println \n)
+  (doseq [y (range height)]
     (print "|")
-    (print (cond 
-             (some (fn [animal]
-                     (and (= (animal :x) x)
-                          (= (animal :y) y)))
-                   @animals)
-             \M)
-           ((gethash (cons x y) @plants) \*)
-           (t \space)))
-  (print "|"))
+    (doseq [x (range width)]
+      (print (cond 
+               (animal-at x y) "M"
+               (plant-at x y) "@"
+               :else " ")))
+    (println "|")))
 
 ;;(defun evolution ()
 ;;  (draw-world)
