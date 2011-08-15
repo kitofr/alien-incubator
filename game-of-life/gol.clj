@@ -74,12 +74,12 @@
 (defn add-animal [coll animal]
   (conj coll animal))
 
+(defn reduce-energy [animal]
+  (assoc animal :energy (int (/ (animal :energy) 2))))
+
 (defn reduce-energy-on [index]
   (let [animal (reduce-energy (nth @animals index))]
     (conj (remove #(= % (nth @animals index)) @animals) animal)))
-
-(defn reduce-energy [animal]
-  (assoc animal :energy (int (/ (animal :energy) 2))))
 
 (defn reproduce [index]
   (let [animal (nth @animals index)
@@ -87,7 +87,11 @@
     (when (>= e reproduction-energy)
       (let [child (reduce-energy animal) 
             new-genes (mutate animal)]
-        (add-animal (reduce-energy-on index) (assoc child :genes new-genes))))))
+        (dosync 
+          (ref-set animals
+                   (add-animal 
+                     (reduce-energy-on index) 
+                     (assoc child :genes new-genes))))))))
 
 ;;(defun update-world ()
 ;;  (setf *animals* (remove-if (lambda (animal)
