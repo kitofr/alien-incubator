@@ -106,21 +106,28 @@
         @animals)
   (add-plants))
 
-;(defn draw-world []
-  ;(loop for y
-    ;below height
-    ;do (progn (fresh-line)
-              ;(princ "|")
-              ;(loop for x
-                ;below width
-                ;do (princ (cond ((some (lambda (animal)
-                                               ;(and (= (animal-x animal) x)
-                                                    ;(= (animal-y animal) y)))
-                                       ;*animals*)
-                                   ;#\M)
-                                ;((gethash (cons x y) *plants*) #\*)
-                                ;(t #\space))))
-              ;(princ "|"))))
+(defn nested-for
+  [f x y]
+  (map (fn [a]
+         (map (fn [b] 
+                (f a b)) y))
+       x))
+
+(defn draw-world []
+  (for [y (range height)
+        x (range width)
+        :while (< y x)]
+    (println \n)
+    (print "|")
+    (print (cond 
+             (some (fn [animal]
+                     (and (= (animal :x) x)
+                          (= (animal :y) y)))
+                   @animals)
+             \M)
+           ((gethash (cons x y) @plants) \*)
+           (t \space)))
+  (print "|"))
 
 ;;(defun evolution ()
 ;;  (draw-world)
