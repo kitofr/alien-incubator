@@ -60,9 +60,9 @@
 
 (defn eat [animal]
   (let [pos (list (animal :x) (animal :y))]
-    (when plants (gethash pos))
-    (+ (animal :energy) plant-energy)
-    (pos plants :none)))
+    (when plants (gethash pos)
+      (dosync (alter plants assoc (gethash pos) nil)
+      (assoc animal :energy (+ (animal :energy) plant-energy))))))
 
 (def reproduction-energy 200)
 
@@ -95,11 +95,12 @@
                      (reduce-energy-on animal) 
                      (assoc child :genes new-genes))))))))
 
+(defn kill-animals []
+  (dosync (ref-set animals (filter #(> (% :energy) 0) @animals))))
+
 (defn update-world []
-  (dosync (ref-set animals (filter #(> (% :energy) 0) @animals)))
-  (map (fn [animal]
-         (reproduce (eat (move (turn animal)))))
-        @animals)
+  (kill-animals)
+  (map #(reproduce (eat (move (turn %)))) @animals)
   (add-plants))
 
 (defn animal-at [x y]
@@ -121,6 +122,16 @@
                :else " ")))
     (println "|")))
 
+(defn fresh-line []
+  (dotimes [x (+ 2 width)] (print "-"))
+  (println ""))
+
+
+(defn evolution []
+  (update-world)
+  (fresh-line)
+  (draw-world))
+  
 ;;(defun evolution ()
 ;;  (draw-world)
 ;;  (fresh-line)
