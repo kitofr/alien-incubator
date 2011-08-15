@@ -77,9 +77,12 @@
 (defn reduce-energy [animal]
   (assoc animal :energy (int (/ (animal :energy) 2))))
 
+(defn remove-animal-on [index]
+  (remove #(= % (nth @animals index)) @animals))
+
 (defn reduce-energy-on [index]
   (let [animal (reduce-energy (nth @animals index))]
-    (conj (remove #(= % (nth @animals index)) @animals) animal)))
+    (conj (remove-animal-on index) animal)))
 
 (defn reproduce [index]
   (let [animal (nth @animals index)
@@ -93,34 +96,32 @@
                      (reduce-energy-on index) 
                      (assoc child :genes new-genes))))))))
 
-;;(defun update-world ()
-;;  (setf *animals* (remove-if (lambda (animal)
-;;                                 (<= (animal-energy animal) 0))
-;;                             *animals*))
-;;  (mapc (lambda (animal)
-;;          (turn animal)
-;;          (move animal)
-;;          (eat animal)
-;;          (reproduce animal))
-;;        *animals*)
-;;  (add-plants))
-;;
-;; (defn draw-world []
-;;  (loop for y
-;;        below *height*
-;;        do (progn (fresh-line)
-;;                  (princ "|")
-;;                  (loop for x
-;;                        below *width*
-;;                        do (princ (cond ((some (lambda (animal)
-;;                                                 (and (= (animal-x animal) x)
-;;                                                      (= (animal-y animal) y)))
-;;                                               *animals*)
-;;                                         #\M)
-;;                                        ((gethash (cons x y) *plants*) #\*)
-;;                                         (t #\space))))
-;;                  (princ "|"))))
-;;
+(defn update-world []
+  (dosync (ref-set animals (filter #(> (% :energy) 0) @animals)))
+  (map (fn [animal]
+         (turn animal)
+         (move animal)
+         (eat animal)
+         (reproduce animal))
+        @animals)
+  (add-plants))
+
+;(defn draw-world []
+  ;(loop for y
+    ;below height
+    ;do (progn (fresh-line)
+              ;(princ "|")
+              ;(loop for x
+                ;below width
+                ;do (princ (cond ((some (lambda (animal)
+                                               ;(and (= (animal-x animal) x)
+                                                    ;(= (animal-y animal) y)))
+                                       ;*animals*)
+                                   ;#\M)
+                                ;((gethash (cons x y) *plants*) #\*)
+                                ;(t #\space))))
+              ;(princ "|"))))
+
 ;;(defun evolution ()
 ;;  (draw-world)
 ;;  (fresh-line)
