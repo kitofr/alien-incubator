@@ -77,35 +77,30 @@
 (defn reduce-energy [animal]
   (assoc animal :energy (int (/ (animal :energy) 2))))
 
-(defn remove-animal-on [index]
-  (remove #(= % (nth @animals index)) @animals))
+(defn remove-animal [animal]
+  (remove #(= % animal) @animals))
 
-(defn reduce-energy-on [index]
-  (let [animal (reduce-energy (nth @animals index))]
-    (conj (remove-animal-on index) animal)))
+(defn reduce-energy-on [animal]
+  (let [a (reduce-energy animal)]
+    (conj (remove-animal animal) a)))
 
-(defn reproduce [index]
-  (let [animal (nth @animals index)
-        e (animal :energy)]
+(defn reproduce [animal]
+  (let [e (animal :energy)]
     (when (>= e reproduction-energy)
       (let [child (reduce-energy animal) 
             new-genes (mutate animal)]
         (dosync 
           (ref-set animals
                    (add-animal 
-                     (reduce-energy-on index) 
+                     (reduce-energy-on animal) 
                      (assoc child :genes new-genes))))))))
 
 (defn update-world []
   (dosync (ref-set animals (filter #(> (% :energy) 0) @animals)))
   (map (fn [animal]
-         (turn animal)
-         (move animal)
-         (eat animal)
-         (reproduce animal))
+         (reproduce (eat (move (turn animal)))))
         @animals)
   (add-plants))
-
 
 (defn animal-at [x y]
   (some (fn [animal]
@@ -122,7 +117,7 @@
     (doseq [x (range width)]
       (print (cond 
                (animal-at x y) "M"
-               (plant-at x y) "@"
+               (plant-at y x) "@"
                :else " ")))
     (println "|")))
 
