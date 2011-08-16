@@ -4,6 +4,7 @@
 (def plant-energy 80)
 (def plants (ref {}))
 
+
 (defn gethash [obj]
   (if (= "1.1.0-master-SNAPSHOT" (clojure-version))
     (.GetHashCode obj)
@@ -27,6 +28,8 @@
                     :dir 0
                     :genes (into [] (take 8
                                  (repeatedly #(rand-int 10))))))))
+
+(def eve (first @animals))
 
 (defn move [animal]
   (let [dir (:dir animal)
@@ -89,18 +92,18 @@
     (when (>= e reproduction-energy)
       (let [child (reduce-energy animal) 
             new-genes (mutate animal)]
-        (dosync 
-          (ref-set animals
-                   (add-animal 
-                     (reduce-energy-on animal) 
-                     (assoc child :genes new-genes))))))))
+        (add-animal 
+          (reduce-energy-on animal) 
+          (assoc child :genes new-genes))))))
 
 (defn kill-animals []
-  (dosync (ref-set animals (filter #(> (% :energy) 0) @animals))))
+  (filter #(> (% :energy) 0) @animals))
 
 (defn update-world []
-  (kill-animals)
-  (map #(reproduce (eat (move (turn %)))) @animals)
+  (dosync 
+    (ref-set animals (kill-animals))
+    (ref-set animals (map #(eat (move (turn %))) @animals))
+    (ref-set animals (first (map #(reproduce %) @animals))))
   (add-plants))
 
 (defn animal-at [x y]
@@ -131,7 +134,7 @@
   (update-world)
   (fresh-line)
   (draw-world))
-  
+
 ;;(defun evolution ()
 ;;  (draw-world)
 ;;  (fresh-line)
