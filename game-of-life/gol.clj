@@ -1,5 +1,15 @@
-(def width 10)
-(def height 10)
+;; borowed from 1.2
+(defn flatten
+  "Takes any nested combination of sequential things (lists, vectors,
+  etc.) and returns their contents as a single, flat sequence.
+  (flatten nil) returns nil."
+  {:added "1.2"}
+  [x]
+  (filter (complement sequential?)
+          (rest (tree-seq sequential? seq x))))
+
+(def width 100)
+(def height 30)
 (def jungle '(45 10 10 10))
 (def plant-energy 80)
 (def plants (ref {}))
@@ -92,7 +102,7 @@
     (when (>= e reproduction-energy)
       (let [child (reduce-energy animal) 
             new-genes (mutate animal)]
-        (add-animal 
+        (list ;add-animal 
           (reduce-energy-on animal) 
           (assoc child :genes new-genes))))))
 
@@ -103,7 +113,7 @@
   (dosync 
     (ref-set animals (kill-animals))
     (ref-set animals (map #(eat (move (turn %))) @animals))
-    (ref-set animals (first (map #(reproduce %) @animals))))
+    (ref-set animals (flatten (map #(reproduce %) @animals))))
   (add-plants))
 
 (defn animal-at [x y]
@@ -133,7 +143,8 @@
 (defn evolution []
   (update-world)
   (fresh-line)
-  (draw-world))
+  (draw-world)
+  (fresh-line))
 
 ;;(defun evolution ()
 ;;  (draw-world)
