@@ -1,19 +1,9 @@
-;; borowed from 1.2
-(defn flatten
-  "Takes any nested combination of sequential things (lists, vectors,
-  etc.) and returns their contents as a single, flat sequence.
-  (flatten nil) returns nil."
-  {:added "1.2"}
-  [x]
-  (filter (complement sequential?)
-          (rest (tree-seq sequential? seq x))))
-
 (def width 100)
 (def height 30)
 (def jungle '(45 10 10 10))
-(def plant-energy 80)
+(def plant-energy 10)
 (def plants (ref {}))
-
+(def day (ref 0))
 
 (defn gethash [obj]
   (if (= "1.1.0-master-SNAPSHOT" (clojure-version))
@@ -38,8 +28,6 @@
                     :dir 0
                     :genes (into [] (take 8
                                  (repeatedly #(rand-int 10))))))))
-
-(def eve (first @animals))
 
 (defn move [animal]
   (let [dir (:dir animal)
@@ -84,27 +72,18 @@
         new-genes (assoc (animal :genes) gene-index (max 1 (+ (nth (animal :genes) gene-index) (rand-int 3) -1)))]
     new-genes))
 
-(defn add-animal [coll animal]
-  (conj coll animal))
-
 (defn reduce-energy [animal]
   (assoc animal :energy (int (/ (animal :energy) 2))))
 
-(defn remove-animal [animal]
-  (remove #(= % animal) @animals))
-
-(defn reduce-energy-on [animal]
-  (let [a (reduce-energy animal)]
-    (conj (remove-animal animal) a)))
-
 (defn reproduce [animal]
   (let [e (animal :energy)]
-    (when (>= e reproduction-energy)
+    (if (>= e reproduction-energy)
       (let [child (reduce-energy animal) 
             new-genes (mutate animal)]
-        (list ;add-animal 
-          (reduce-energy-on animal) 
-          (assoc child :genes new-genes))))))
+        (list 
+          (reduce-energy animal) 
+          (assoc child :genes new-genes)))
+    (list animal))))
 
 (defn kill-animals []
   (filter #(> (% :energy) 0) @animals))
@@ -114,7 +93,9 @@
     (ref-set animals (kill-animals))
     (ref-set animals (map #(eat (move (turn %))) @animals))
     (ref-set animals (flatten (map #(reproduce %) @animals))))
-  (add-plants))
+  (add-plants)
+  (dosync (ref-set day (inc @day))))
+
 
 (defn animal-at [x y]
   (some (fn [animal]
@@ -139,24 +120,28 @@
   (dotimes [x (+ 2 width)] (print "-"))
   (println ""))
 
+(defn print-stats []
+  (print "day: ")
+  (print @day)
+  (print " | animals: ")
+  (print (count @animals))
+  (print " | plants: ")
+  (println (count @plants)))
+
 
 (defn evolution []
   (update-world)
   (fresh-line)
   (draw-world)
-  (fresh-line))
+  (fresh-line)
+  (print-stats))
 
-;;(defun evolution ()
-;;  (draw-world)
-;;  (fresh-line)
-;;  (let ((str (read-line)))
-;;    (cond ((equal str "quit") ())
-;;          (t (let ((x (parse-integer str :junk-allowed t)))
-;;               (if x
-;;                   (loop for i
-;;                      below x
-;;                      do (update-world)
-;;                      if (zerop (mod i 1000))
-;;                      do (princ #\.))
-;;                   (update-world))
-;;               (evolution))))))
+(use 'clojure.test)
+(def eve (first @animals))
+(deftest test-reproduce
+         (is (= 2 (count (reproduce eve))))
+         (is (= 4 (count (flatten (map #(reproduce %) (reproduce eve))))))
+         (is (= 1 (count (reproduce (assoc eve :energy (- reproduction-energy 1)))))))
+
+
+
