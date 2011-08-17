@@ -4,11 +4,13 @@
 (def plants (ref {}))
 (def day (ref 0))
 
-(defn plant-energy (rand-int 10))
 (defn gethash [obj]
   (if (= "1.1.0-master-SNAPSHOT" (clojure-version))
     (.GetHashCode obj)
     (.hashCode obj)))
+
+(defn plant-energy []
+  (rand-int 10))
 
 (defn random-plant [left top width height]
   (let [pos (list (+ left (rand-int width)) (list (+ top (rand-int height))))]
@@ -63,7 +65,7 @@
   (let [pos (list (animal :x) (animal :y))]
     (when plants (gethash pos)
       (dosync (alter plants assoc (gethash pos) nil)
-      (assoc animal :energy (+ (animal :energy) plant-energy))))))
+      (assoc animal :energy (+ (animal :energy) (plant-energy)))))))
 
 (def reproduction-energy 200)
 
