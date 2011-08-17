@@ -1,10 +1,10 @@
 (def width 100)
 (def height 30)
 (def jungle '(45 10 10 10))
-(def plant-energy 10)
 (def plants (ref {}))
 (def day (ref 0))
 
+(defn plant-energy (rand-int 10))
 (defn gethash [obj]
   (if (= "1.1.0-master-SNAPSHOT" (clojure-version))
     (.GetHashCode obj)
@@ -142,6 +142,3 @@
          (is (= 2 (count (reproduce eve))))
          (is (= 4 (count (flatten (map #(reproduce %) (reproduce eve))))))
          (is (= 1 (count (reproduce (assoc eve :energy (- reproduction-energy 1)))))))
-
-
-
