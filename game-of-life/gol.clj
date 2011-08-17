@@ -88,7 +88,7 @@
     (list animal))))
 
 (defn kill-animals []
-  (filter #(> (% :energy) 0) @animals))
+  (filter #(> (% :energy) 10) @animals))
 
 (defn update-world []
   (dosync 
