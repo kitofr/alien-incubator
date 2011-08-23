@@ -78,8 +78,6 @@
               (* (:y ray) (:y normal))
               (* (:z ray) (:z normal))))))
 
-
-
 ;; second item = what we hit
 ;; first item = where we hit
 (defn first-hit [pt ray]
@@ -96,9 +94,13 @@
              (if (not (nil? h))
                [h obj]))) world)))
 
+(defmacro unless [condition & body]
+    `(if (not ~condition)
+       ~@body))
+
 (defn send-ray [src ray]
   (let [hit (first-hit src ray)]
-    (if (not (nil? hit))
+    (unless (nil? hit)
       (let [i (first hit) s (second hit)]
         (* (lambert s ray i) (:color s)))
       0)))
@@ -125,7 +127,7 @@
                               (proxy-super paintComponent g)    
                               (.setColor g Color/RED)
                               (draw g (ray-trace world (.getWidth this) (.getHeight this))))))
-(defn main []
+(defn jframe []
   (let [frame (JFrame. "Ray Tracing")]
     (doto frame
       (.add canvas)
