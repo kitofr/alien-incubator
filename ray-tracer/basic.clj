@@ -118,12 +118,14 @@
       (set-pixel image x y (color-at x y))))
   image)
 
-(defn tracer [w h]
+(defn print-world [w h]
+  (printf "var points = {")
   (doseq [x (range 1 w)]
     (doseq [y (range 1 h)]
       (let [color (color-at x y)]
         (when (< 0 color)
-          (printf "[(%s,%s)=>%s]," x y (color-at x y) " "))))))
+          (printf "{ x: %s, y: %s, color: %s }," x y (color-at x y))))))
+  (println "}"))
 
 (defn draw [g image]
   (.drawImage g image 0 0 Color/RED nil))
