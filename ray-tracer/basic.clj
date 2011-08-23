@@ -9,19 +9,21 @@
   (Math/sqrt (+ (square x) (square y) (square z))))
 
 (defstruct point :x :y :z)
+(defn defpoint [x y z]
+  (struct point x y z))
 
 (defn point-subtract [p1 p2]
-  (struct point 
-          (- (:x p1) (:x p2))
-          (- (:y p1) (:y p2))
-          (- (:z p1) (:z p2))))
+  (defpoint 
+    (- (:x p1) (:x p2))
+    (- (:y p1) (:y p2))
+    (- (:z p1) (:z p2))))
 
 (defn unit-vector [p]
   (let [x (:x p)
         y (:y p)
         z (:z p)
         d (mag x y z)]
-    (struct point (/ x d) (/ y d) (/ z d))))
+    (defpoint (/ x d) (/ y d) (/ z d))))
 
 (defn distance [p1 p2]
   (mag (- (:x p1) (:x p2))
@@ -37,23 +39,19 @@
           (min (/ (+ (- b) discrt) (* 2 a))
                (/ (- (- b) discrt) (* 2 a))))))))
 
-(defstruct surface :color)
-(def eye (struct point 150 150 200))
+(def eye (defpoint 150 150 200))
 
 (defstruct sphere :color :radius :centre)
-
-(defn defpoint [x y z]
-  (struct point x y z))
 
 (defn defsphere [point r c]
   (struct sphere c r point))
 
 ; constant world for now
-(def world [(defsphere (defpoint 150 150 -700) 150 0.32)
-            (defsphere (defpoint 125 270 -600) 180 0.88)
-            (defsphere (defpoint 325 270 -200) 80 0.99)
-            (defsphere (defpoint 125 370 -400) 80 0.23)
-            (defsphere (defpoint 175 175 -100) 20 0.64)])
+(def world [(defsphere (defpoint 250 150 -700) 150 0.52)
+            (defsphere (defpoint 225 270 -600) 180 1.0)
+            (defsphere (defpoint 425 270 -200) 80 0.99)
+            (defsphere (defpoint 225 370 -400) 80 0.73)
+            (defsphere (defpoint 275 175 -100) 20 0.64)])
 
 (defn sphere-normal [s pt]
   (let [c (:centre s)]
@@ -70,9 +68,9 @@
                       (square (- (:z pt) (:z c)))
                       (- (square (:radius s)))))]
     (if n
-      (struct point (+ (:x pt) (* n (:x ray)))
-              (+ (:y pt) (* n (:y ray)))
-              (+ (:z pt) (* n (:z ray)))))))
+      (defpoint (+ (:x pt) (* n (:x ray)))
+                (+ (:y pt) (* n (:y ray)))
+                (+ (:z pt) (* n (:z ray)))))))
 
 (defn lambert [s intersection ray]
   (let [normal (sphere-normal s intersection)]
@@ -101,31 +99,36 @@
 (defn send-ray [src ray]
   (let [hit (first-hit src ray)]
     (if (not (nil? hit))
-      (let [int (first hit) s (second hit)]
-        (* (lambert s ray int) (:color s)))
+      (let [i (first hit) s (second hit)]
+        (* (lambert s ray i) (:color s)))
       0)))
 
 (defn color-at [x y]
-  (let [ray (unit-vector (point-subtract (struct point x y 0) eye))]
+  (let [ray (unit-vector (point-subtract (defpoint x y 0) eye))]
     (* (send-ray eye ray) 255)))
 
-(defn ray-trace [world res g w h]
+(defn set-pixel [image x y color]
+  (.setRGB image x y color))
+
+(defn draw [g image]
+  (.drawImage g image 0 0 Color/RED nil))
+
+(defn ray-trace [world g w h]
   (let [buffered-image (BufferedImage. w h BufferedImage/TYPE_BYTE_GRAY)]
     (doseq [x (range 1 w)]
       (doseq [y (range 1 h)]
-        (.setRGB buffered-image x y (color-at x y))))
-    (.drawImage g buffered-image 0 0 Color/RED nil)))
+        (set-pixel buffered-image x y (color-at x y))))
+    buffered-image))
 
 (def canvas (proxy [JPanel] []
               (paintComponent [g]
                               (proxy-super paintComponent g)    
                               (.setColor g Color/RED)
-                              (ray-trace world 1 g (.getWidth this) (.getHeight this)))))
-(defn raytraceapp []
+                              (draw g (ray-trace world g (.getWidth this) (.getHeight this))))))
+(defn main []
   (let [frame (JFrame. "Ray Tracing")]
     (doto frame
       (.add canvas)
-      (.setSize 300 300)
+      (.setSize 500 500)
       (.setResizable false)
       (.setVisible true))))
-
