@@ -113,10 +113,17 @@
   (.setRGB image x y color))
 
 (defn ray-trace [image w h]
-    (doseq [x (range 1 w)]
-      (doseq [y (range 1 h)]
-        (set-pixel image x y (color-at x y))))
-    image)
+  (doseq [x (range 1 w)]
+    (doseq [y (range 1 h)]
+      (set-pixel image x y (color-at x y))))
+  image)
+
+(defn tracer [w h]
+  (doseq [x (range 1 w)]
+    (doseq [y (range 1 h)]
+      (let [color (color-at x y)]
+        (when (< 0 color)
+          (printf "[(%s,%s)=>%s]," x y (color-at x y) " "))))))
 
 (defn draw [g image]
   (.drawImage g image 0 0 Color/RED nil))
@@ -124,15 +131,14 @@
 (def canvas (proxy [JPanel] []
               (paintComponent [g]
                               (proxy-super paintComponent g)    
-                              (.setColor g Color/RED)
                               (let [w (.getWidth this)
                                     h (.getHeight this)
-                                    buffered-image (BufferedImage. w h BufferedImage/TYPE_BYTE_GRAY)]
-                              (draw g (ray-trace buffered-image w h ))))))
+                                    image (BufferedImage. w h BufferedImage/TYPE_BYTE_GRAY)]
+                                (draw g (ray-trace image w h))))))
 (defn jframe []
   (let [frame (JFrame. "Ray Tracing")]
     (doto frame
       (.add canvas)
-      (.setSize 500 500)
+      (.setSize 500 300)
       (.setResizable false)
       (.setVisible true))))
