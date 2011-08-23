@@ -10,11 +10,12 @@
     (.hashCode obj)))
 
 (defn plant-energy []
-  (rand-int 10))
+  (rand-int 5))
 
 (defn random-plant [left top width height]
+  (when (> 2 (rand-int 100))
   (let [pos (list (+ left (rand-int width)) (list (+ top (rand-int height))))]
-    (dosync (alter plants assoc (gethash pos) true))))
+    (dosync (alter plants assoc (gethash pos) true)))))
 
 (defn add-plants []
   (apply #'random-plant jungle)
@@ -26,7 +27,7 @@
   (ref (list (struct-map animal 
                     :x (int (/ width 2))
                     :y (int (/ height 2))
-                    :energy 1000
+                    :energy 100
                     :dir 0
                     :genes (into [] (take 8
                                  (repeatedly #(rand-int 10))))))))
@@ -128,7 +129,7 @@
   (print " | animals: ")
   (print (count @animals))
   (print " | plants: ")
-  (println (count @plants)))
+  (println (count (filter #(= true %) (vals @plants)))))
 
 
 (defn evolution []
