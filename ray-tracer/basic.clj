@@ -41,13 +41,19 @@
 (def eye (struct point 150 150 200))
 
 (defstruct sphere :color :radius :centre)
+
+(defn defpoint [x y z]
+  (struct point x y z))
+
 (defn defsphere [point r c]
   (struct sphere c r point))
 
 ; constant world for now
-(def world [(defsphere (struct point 150 150 -600) 250 0.32)
-            (defsphere (struct point 125 270 -400) 180 0.88)
-            (defsphere (struct point 175 175 -300) 100 0.64)])
+(def world [(defsphere (defpoint 150 150 -700) 150 0.32)
+            (defsphere (defpoint 125 270 -600) 180 0.88)
+            (defsphere (defpoint 325 270 -200) 80 0.99)
+            (defsphere (defpoint 125 370 -400) 80 0.23)
+            (defsphere (defpoint 175 175 -100) 20 0.64)])
 
 (defn sphere-normal [s pt]
   (let [c (:centre s)]
@@ -75,13 +81,6 @@
               (* (:z ray) (:z normal))))))
 
 
-(defn raytraceapp []
-  (let [frame (JFrame. "Ray Tracing")]
-    (doto frame
-      (.add canvas)
-      (.setSize 300 300)
-      (.setResizable false)
-      (.setVisible true))))
 
 ;; second item = what we hit
 ;; first item = where we hit
@@ -122,3 +121,11 @@
                               (proxy-super paintComponent g)    
                               (.setColor g Color/RED)
                               (ray-trace world 1 g (.getWidth this) (.getHeight this)))))
+(defn raytraceapp []
+  (let [frame (JFrame. "Ray Tracing")]
+    (doto frame
+      (.add canvas)
+      (.setSize 300 300)
+      (.setResizable false)
+      (.setVisible true))))
+
