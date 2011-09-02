@@ -5,17 +5,24 @@
                     InputStreamReader))
   (:refer-clojure :exclude (get)))
 
-(defn get [u]
-  (let [u (URL. u)
-        #^HttpURLConnection con (cast HttpURLConnection (.openConnection u))
-        reader (BufferedReader. 
-                 (InputStreamReader. 
-                   (.getInputStream con)))]
-  (apply str (line-seq reader))))
+(defn- parse-headers [connection]
+  (let [hs (.getHeaderFields connection)]
+    (into {} (for [[k v] hs :when k] [(keyword (.toLowerCase k)) (seq v)]))))
 
-;(defn get [url]
-  ;(let [url (URL. url)]
-    ;(with-open [stream (. url (openStream))]
-      ;(let [buf (BufferedReader. 
-                 ;(InputStreamReader. stream))]
-    ;(apply str (line-seq buf))))))
+(defn- parse-body [connection]
+  (let [reader (BufferedReader. 
+                 (InputStreamReader. 
+                   (.getInputStream connection)))]
+    (apply str (line-seq reader))))
+
+(defn- parse-code [connection]
+  (.getResponseCode connection))
+
+(defn get [u]
+  (let [url (URL. u)
+        #^HttpURLConnection con (cast HttpURLConnection (.openConnection url))]
+    {:body (parse-body con) 
+     :code (parse-code con)
+     :headers (parse-headers con)
+     :url u
+     }))
