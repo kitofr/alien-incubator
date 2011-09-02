@@ -1,6 +1,7 @@
 (ns basic
   (:import
     (javax.swing JFrame JPanel)
+    (java.awt Color)
     (java.awt.image BufferedImage)))
 
 (defn square [x] (* x x))
@@ -47,11 +48,9 @@
   (struct sphere c r point))
 
 ; constant world for now
-(def world [(defsphere (defpoint 250 150 -700) 150 0.52)
+(def world [(defsphere (defpoint 250 100 -700) 150 0.52)
             (defsphere (defpoint 225 270 -600) 180 1.0)
-            (defsphere (defpoint 425 270 -200) 80 0.99)
-            (defsphere (defpoint 225 370 -400) 80 0.73)
-            (defsphere (defpoint 275 175 -100) 20 0.64)])
+            (defsphere (defpoint 275 175 -100) 50 0.64)])
 
 (defn sphere-normal [s pt]
   (let [c (:centre s)]
@@ -78,6 +77,10 @@
               (* (:y ray) (:y normal))
               (* (:z ray) (:z normal))))))
 
+(defmacro unless [condition & body]
+    `(if (not ~condition)
+       ~@body))
+
 ;; second item = what we hit
 ;; first item = where we hit
 (defn first-hit [pt ray]
@@ -91,12 +94,9 @@
                   (if (< d1 d2) x y)))))
     (map (fn [obj]
            (let [h (sphere-intersect obj pt ray)]
-             (if (not (nil? h))
+             (unless (nil? h)
                [h obj]))) world)))
 
-(defmacro unless [condition & body]
-    `(if (not ~condition)
-       ~@body))
 
 (defn send-ray [src ray]
   (let [hit (first-hit src ray)]
@@ -107,7 +107,7 @@
 
 (defn color-at [x y]
   (let [ray (unit-vector (point-subtract (defpoint x y 0) eye))]
-    (* (send-ray eye ray) 255)))
+    (* (send-ray eye ray) 155)))
 
 (defn set-pixel [image x y color]
   (.setRGB image x y color))
@@ -128,14 +128,14 @@
   (println "}"))
 
 (defn draw [g image]
-  (.drawImage g image 0 0 Color/RED nil))
+  (.drawImage g image 0 0 Color/BLACK nil))
 
 (def canvas (proxy [JPanel] []
               (paintComponent [g]
                               (proxy-super paintComponent g)    
                               (let [w (.getWidth this)
                                     h (.getHeight this)
-                                    image (BufferedImage. w h BufferedImage/TYPE_BYTE_GRAY)]
+                                    image (BufferedImage. w h BufferedImage/TYPE_INT_RGB)]
                                 (draw g (ray-trace image w h))))))
 (defn jframe []
   (let [frame (JFrame. "Ray Tracing")]
