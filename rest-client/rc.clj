@@ -21,6 +21,7 @@
 (defn get [u]
   (let [url (URL. u)
         #^HttpURLConnection con (cast HttpURLConnection (.openConnection url))]
+    (.setRequestMethod con "GET")
     {:body (parse-body con) 
      :code (parse-code con)
      :headers (parse-headers con)
