@@ -27,3 +27,9 @@
      :headers (parse-headers con)
      :url u
      }))
+
+(defn post [u body]
+  (let [url (URL. u)
+        #^HttpURLConnection con (cast HttpURLConnection (.openConnection url))]
+    (.setRequestMethod con "POST")
+    
