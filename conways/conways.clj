@@ -1,14 +1,18 @@
+(ns com.kitofr.conways)
+
 (def width 50)
 (def height 50)
+
+(def life (ref {}))
 
 (defn to-pos [x y]
   (+ (* y height) (mod x width)))
 
-(defn populated? [pos]
-  true)
-
 (defn unpopulated? [pos]
-  false)
+  (nil? (get @life pos)))
+
+(defn populated? [pos]
+  (not (unpopulated? pos)))
 
 (defn neighbors [pos]
   [])
@@ -29,13 +33,16 @@
 (defn fertile? [pos]
   (= (neighbor-count pos) 3))
 
-(defn draw-world []
-  (doseq [y (range height)]
-    (print "|")
-    (doseq [x (range width)]
-      (print (if (populated? (to-pos x y)) 
-               "*"
-               " "))
-      (println "|"))))
-                
+(defn populate! [pos]
+  (dosync (ref-set life (assoc @life pos true))))
+
+;(defn draw-world []
+;  (doseq [y (range height)]
+;    (print "|")
+;    (doseq [x (range width)]
+;      (print (if (populated? (to-pos x y)) 
+;               "*"
+;               " "))
+;      (println ">"))))
+;                
 
