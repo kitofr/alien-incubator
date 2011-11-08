@@ -1,12 +1,21 @@
 (def width 100)
 (def height 30)
 (def jungle '(45 10 10 10))
-(def plant-energy 80)
 (def plants (ref {}))
+(def day (ref 0))
+
+(defn gethash [obj]
+  (if (= "1.1.0-master-SNAPSHOT" (clojure-version))
+    (.GetHashCode obj)
+    (.hashCode obj)))
+
+(defn plant-energy []
+  (rand-int 5))
 
 (defn random-plant [left top width height]
+  (when (> 2 (rand-int 100))
   (let [pos (list (+ left (rand-int width)) (list (+ top (rand-int height))))]
-    (dosync (alter plants assoc (.hashCode pos) true))))
+    (dosync (alter plants assoc (gethash pos) true)))))
 
 (defn add-plants []
   (apply #'random-plant jungle)
@@ -14,11 +23,11 @@
 
 (defstruct animal :x :y :energy :dir :genes)
 
-(def animals (ref
-  (list (struct-map animal 
+(def animals 
+  (ref (list (struct-map animal 
                     :x (int (/ width 2))
                     :y (int (/ height 2))
-                    :energy 1000
+                    :energy 100
                     :dir 0
                     :genes (into [] (take 8
                                  (repeatedly #(rand-int 10))))))))
@@ -55,61 +64,84 @@
 
 (defn eat [animal]
   (let [pos (list (animal :x) (animal :y))]
-    (when plants (.hashCode pos))
-    (+ (animal :energy) plant-energy)
-    (pos plants :none)))
+    (when plants (gethash pos)
+      (dosync (alter plants assoc (gethash pos) nil)
+      (assoc animal :energy (+ (animal :energy) (plant-energy)))))))
 
 (def reproduction-energy 200)
 
-(defn reproduce [animal]
-  (when (>= (animal :energy) reproduction-energy)
-    (let [genes     (animal :genes)
-          mutation  (rand-int 8)]
-      (assoc animal :energy (int (/ e 2))
-                    :genes mutation (max 1 (+ (nth genes mutation) (rand-int 3) -1))
-                    ))))
-;  (assoc (animal-nu :genes) genes)
-;  (push animal-nu *animals*)))))
+(defn mutate [animal]
+  (let [gene-index (rand-int 8)
+        new-genes (assoc (animal :genes) gene-index (max 1 (+ (nth (animal :genes) gene-index) (rand-int 3) -1)))]
+    new-genes))
 
-;;(defun update-world ()
-;;  (setf *animals* (remove-if (lambda (animal)
-;;                                 (<= (animal-energy animal) 0))
-;;                             *animals*))
-;;  (mapc (lambda (animal)
-;;          (turn animal)
-;;          (move animal)
-;;          (eat animal)
-;;          (reproduce animal))
-;;        *animals*)
-;;  (add-plants))
-;;
-;; (defn draw-world []
-;;  (loop for y
-;;        below *height*
-;;        do (progn (fresh-line)
-;;                  (princ "|")
-;;                  (loop for x
-;;                        below *width*
-;;                        do (princ (cond ((some (lambda (animal)
-;;                                                 (and (= (animal-x animal) x)
-;;                                                      (= (animal-y animal) y)))
-;;                                               *animals*)
-;;                                         #\M)
-;;                                        ((gethash (cons x y) *plants*) #\*)
-;;                                         (t #\space))))
-;;                  (princ "|"))))
-;;
-;;(defun evolution ()
-;;  (draw-world)
-;;  (fresh-line)
-;;  (let ((str (read-line)))
-;;    (cond ((equal str "quit") ())
-;;          (t (let ((x (parse-integer str :junk-allowed t)))
-;;               (if x
-;;                   (loop for i
-;;                      below x
-;;                      do (update-world)
-;;                      if (zerop (mod i 1000))
-;;                      do (princ #\.))
-;;                   (update-world))
-;;               (evolution))))))
+(defn reduce-energy [animal]
+  (assoc animal :energy (int (/ (animal :energy) 2))))
+
+(defn reproduce [animal]
+  (let [e (animal :energy)]
+    (if (>= e reproduction-energy)
+      (let [child (reduce-energy animal) 
+            new-genes (mutate animal)]
+        (list 
+          (reduce-energy animal) 
+          (assoc child :genes new-genes)))
+    (list animal))))
+
+(defn kill-animals []
+  (filter #(> (% :energy) 10) @animals))
+
+(defn update-world []
+  (dosync 
+    (ref-set animals (kill-animals))
+    (ref-set animals (map #(eat (move (turn %))) @animals))
+    (ref-set animals (flatten (map #(reproduce %) @animals))))
+  (add-plants)
+  (dosync (ref-set day (inc @day))))
+
+
+(defn animal-at [x y]
+  (some (fn [animal]
+          (and (= (animal :x) x)
+               (= (animal :y) y)))
+        @animals))
+
+(defn plant-at [x y]
+  (get @plants (gethash (list x y))))
+
+(defn draw-world []
+  (doseq [y (range height)]
+    (print "|")
+    (doseq [x (range width)]
+      (print (cond 
+               (animal-at x y) "M"
+               (plant-at y x) "@"
+               :else " ")))
+    (println "|")))
+
+(defn fresh-line []
+  (dotimes [x (+ 2 width)] (print "-"))
+  (println ""))
+
+(defn print-stats []
+  (print "day: ")
+  (print @day)
+  (print " | animals: ")
+  (print (count @animals))
+  (print " | plants: ")
+  (println (count (filter #(= true %) (vals @plants)))))
+
+
+(defn evolution []
+  (update-world)
+  (fresh-line)
+  (draw-world)
+  (fresh-line)
+  (print-stats))
+
+(use 'clojure.test)
+(def eve (first @animals))
+(deftest test-reproduce
+         (is (= 2 (count (reproduce eve))))
+         (is (= 4 (count (flatten (map #(reproduce %) (reproduce eve))))))
+         (is (= 1 (count (reproduce (assoc eve :energy (- reproduction-energy 1)))))))
