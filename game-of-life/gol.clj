@@ -62,17 +62,14 @@
 (def reproduction-energy 200)
 
 (defn reproduce [animal]
-  (let [e (animal :energy)]
-    (when (>= e reproduction-energy)
+  (when (>= (animal :energy) reproduction-energy)
+    (let [genes     (animal :genes)
+          mutation  (rand-int 8)]
       (assoc animal :energy (int (/ e 2))
-      (let [animal-nu animal
-            genes     (animal :genes)
-            mutation  (rand-int 8)]
-        (assoc animal-nu :genes mutation
-          (max 1 (+ (nth genes mutation) (rand-int 3) -1))
-        ))))))
-      ;  (assoc (animal-nu :genes) genes)
-      ;  (push animal-nu *animals*)))))
+                    :genes mutation (max 1 (+ (nth genes mutation) (rand-int 3) -1))
+                    ))))
+;  (assoc (animal-nu :genes) genes)
+;  (push animal-nu *animals*)))))
 
 ;;(defun update-world ()
 ;;  (setf *animals* (remove-if (lambda (animal)
