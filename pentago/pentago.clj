@@ -64,7 +64,6 @@
                    (recur (move player square board) (next players))
                    (recur board players))))))))
 
-;(play starting-board players)
 
 (defn get-row [index board]
   (nth board index))
@@ -72,22 +71,36 @@
 (defn get-column [index board]
   (map #(nth %1 index) board))
 
-(defn five-in-a-row? [seq]
+(defn five-in-a-row? [sq]
   (or
-    (apply = (rest seq))
-    (apply = (rest (reverse seq)))))
+    (apply = (rest sq))
+    (apply = (rest (reverse sq)))))
 
-(def indexes '(0 1 2))
+(def indexes '(0 1 2 3 4 5))
 
+(defn get-indexes [sq board]
+  (map #(get-row (first %1) (get-column (second %1) board)) sq))
+
+(get-indexes [[0 0] [1 1] [2 2] [3 3] [4 4] [5 5]] starting-board)
+;(let bind2nd f y = fun x -> f x y)
 (defn winner? [board]
-  (or (not-every? #(= %1 false) (map #(apply = (get-row %1 board)) indexes))
-      (not-every? #(= %1 false) (map #(apply = (get-column %1 board)) indexes))))
+  (or (five-in-a-row? (map #(apply = (get-row %1 board)) indexes))
+      ;(five-in-a-row? (map #(apply = (get-column %1 board)) indexes))
+      ;(five-in-a-row? (get-indexes [[0 0] [1 1] [2 2] [3 3] [4 4] [5 5]] board))
+      ;(five-in-a-row? (get-indexes [[0 5] [1 4] [2 3] [3 2] [4 1] [5 0]] board))
+      (apply = (get-indexes [[1 0] [2 1] [3 2] [4 3] [5 4]] board))
+      (apply = (get-indexes [[0 1] [1 2] [2 3] [3 4] [4 5]] board))
+      (apply = (get-indexes [[0 4] [1 3] [2 2] [3 1] [4 0]] board))
+      (apply = (get-indexes [[1 5] [2 4] [3 3] [4 2] [5 1]] board))
+      ))
 
-(winner? [[1 2 3]
-          [1 3 3]
-          [2 2 3]])
 
+(winner? [[1 2 3 4 5 6]
+   [7 8 9 10 11 12]
+   [13 14 15 16 17 18]
+   [19 20 21 22 23 24]
+   [25 26 27 28 29 30]
+   [31 32 33 34 35 36]])
 
-(five-in-a-row? [1 1 1 1 1 2])
-(five-in-a-row? [1 2 1 1 1 2])
-(five-in-a-row? [2 1 1 1 1 1])
+(map five-in-a-row? (map #(get-row %1 starting-board) indexes))
+;(play starting-board players)
