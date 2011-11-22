@@ -43,7 +43,7 @@
 (print-board (move (first players) 31 starting-board))
 
 
-(defn full? [board] 
+(defn full? [board]
   (not (some number? (mapcat identity board))))
 
 ;(defn winner? [board] false)
@@ -127,11 +127,13 @@
 (defn turn [corner dir board] board)
 
 (defn turn-corner [corner dir]
-  corner
-  )
+  (let [[a b c d e f g h i] corner] dir
+    (if (= 0 dir)
+      (list g d a h e b i f c)
+      (list c f i b e h a d g))))
 
+(get-corner 1 board)
 (turn-corner (get-corner 1 board) 0)
-
-
+(turn-corner (get-corner 1 board) 1)
 
 ;(play starting-board players)
