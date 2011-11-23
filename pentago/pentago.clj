@@ -105,26 +105,21 @@
    [31 32 33 34 35 36]])
 
 
-(defn get-corner [corner board] 
-  (cond
-    (= 1 corner) 
-      (get-indexes [[0 0] [0 1] [0 2] 
-                    [1 0] [1 1] [1 2]
-                    [2 0] [2 1] [2 2]] board)
-    (= 2 corner)
-      (get-indexes [[0 3] [0 4] [0 5] 
-                    [1 3] [1 4] [1 5]
-                    [2 3] [2 4] [2 5]] board)
-    (= 3 corner) 
-      (get-indexes [[3 0] [3 1] [3 2] 
-                    [4 0] [4 1] [4 2]
-                    [5 0] [5 1] [5 2]] board)
-    (= 4 corner) 
-      (get-indexes [[3 3] [3 4] [3 5] 
-                    [4 3] [4 4] [4 5]
-                    [5 3] [5 4] [5 5]] board)))
+(def A [[0 0] [0 1] [0 2] 
+        [1 0] [1 1] [1 2]
+        [2 0] [2 1] [2 2]])
+(def B [[0 3] [0 4] [0 5] 
+        [1 3] [1 4] [1 5]
+        [2 3] [2 4] [2 5]])
+(def C [[3 0] [3 1] [3 2] 
+        [4 0] [4 1] [4 2]
+        [5 0] [5 1] [5 2]])
+(def D [[3 3] [3 4] [3 5] 
+        [4 3] [4 4] [4 5]
+        [5 3] [5 4] [5 5]])
 
-(defn turn [corner dir board] board)
+(defn get-corner [indexes board]
+  (get-indexes indexes board))
 
 (defn turn-corner [corner dir]
   (let [[a b c d e f g h i] corner] dir
@@ -132,8 +127,9 @@
       (list g d a h e b i f c)
       (list c f i b e h a d g))))
 
-(get-corner 1 board)
-(turn-corner (get-corner 1 board) 0)
-(turn-corner (get-corner 1 board) 1)
+(defn turn [corner dir board] board)
+
+(get-corner A board)
+(turn-corner (get-corner A board) 1)
 
 ;(play starting-board players)
