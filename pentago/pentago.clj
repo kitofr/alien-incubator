@@ -94,17 +94,6 @@
                    (recur board players))))))))
 
 
-
-
-(def board
-  [[\X 2 3 4 5 6]
-   [7 \O 9 10 11 12]
-   [13 14 \X 16 17 18]
-   [19 20 21 22 23 24]
-   [25 26 27 28 29 30]
-   [31 32 33 34 35 36]])
-
-
 (defn get-corner [corner board] 
   (cond
     (= 1 corner) 
@@ -124,17 +113,12 @@
                     [4 3] [4 4] [4 5]
                     [5 3] [5 4] [5 5]] board)))
 
-
-
 (defn turn-corner [corner dir]
   (let [[a b c d e f g h i] corner] dir
     (if (= 0 dir)
       (list g d a h e b i f c)
       (list c f i b e h a d g))))
 
-(get-corner 1 board)
-(turn-corner (get-corner 1 board) 0)
-(turn-corner (get-corner 1 board) 1)
 
 (defn list->board [sq]
   (loop [coll sq i 0 acc [[][][][][][]]]
@@ -142,5 +126,27 @@
       acc
       (recur (drop 6 coll) (inc i) (assoc acc i (vec (take 6 coll)))))))
 
-(print-board (list->board (take 36 (cycle '(1 2 3 4 5 6)))))
+(defn connect-corners [c1 c2]
+  (loop [c1 c1 c2 c2 acc '()]
+    (if (empty? c1)
+      acc
+      (recur (drop 3 c1) (drop 3 c2) (concat acc (concat (take 3 c1) (take 3 c2)))))))
+
+(def board
+  [[\X 2 3 4 5 6]
+   [7 \O 9 10 11 12]
+   [13 14 \X 16 17 18]
+   [19 20 21 22 23 24]
+   [25 26 27 28 29 30]
+   [31 32 33 34 35 36]])
+
+(print-board (list->board 
+               (concat 
+                 (connect-corners (turn-corner (get-corner 1 board) 0) 
+                                  (get-corner 2 board))
+                 (connect-corners (get-corner 3 board) 
+                                  (get-corner 4 board)))))
+
+
+
 ;(play starting-board players)
