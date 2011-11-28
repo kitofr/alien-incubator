@@ -46,8 +46,6 @@
 (defn full? [board]
   (not (some number? (mapcat identity board))))
 
-;(defn winner? [board] false)
-
 (defn get-row [index board]
   (nth board index))
 
@@ -68,6 +66,7 @@
      (get-indexes [[0 0] [1 1] [2 2] [3 3] [4 4] [5 5]] starting-board))
 
 ;(let bind2nd f y = fun x -> f x y)
+
 (defn winner? [board]
   (or (some #(= true %1) (map five-in-a-row? (map #(get-row %1 board) indexes)))
       (some #(= true %1) (map five-in-a-row? (map #(get-column %1 board) indexes)))
@@ -93,7 +92,6 @@
                    (recur (move player square board) (next players))
                    (recur board players))))))))
 
-
 (defn get-corner [corner board] 
   (cond
     (= 1 corner) 
@@ -118,7 +116,6 @@
     (if (= 0 dir)
       (list g d a h e b i f c)
       (list c f i b e h a d g))))
-
 
 (defn list->board [sq]
   (loop [coll sq i 0 acc [[][][][][][]]]
@@ -167,14 +164,20 @@
 
 (def board
   [[1 2 3 4 5 6]
-   [7 8 9 10 11 12]
+   [\X \O \O 10 11 12]
    [13 14 15 16 17 18]
    [19 20 21 22 23 24]
    [25 26 27 28 29 30]
    [31 32 33 34 35 36]])
 
-(print-board (turn 2 0 board))
 
+(defn restore-board [board]
+  (loop [sq (flatten board) i 0 acc '()]
+    (if (empty? sq)
+      (reverse acc)
+      (recur (rest sq) (inc i) (cons (if (number? (first sq)) (inc i) (first sq)) acc)))))
+
+(print-board (restore-board (turn 1 0 board)))
 
 
 ;(play starting-board players)
