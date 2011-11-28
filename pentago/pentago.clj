@@ -132,20 +132,48 @@
       acc
       (recur (drop 3 c1) (drop 3 c2) (concat acc (concat (take 3 c1) (take 3 c2)))))))
 
+
+(defn turn [corner dir board]
+  (cond 
+    (= 1 corner)
+    (list->board 
+      (concat 
+        (connect-corners (turn-corner (get-corner 1 board) dir) 
+                         (get-corner 2 board))
+        (connect-corners (get-corner 3 board) 
+                         (get-corner 4 board))))
+    (= 2 corner)
+    (list->board 
+      (concat 
+        (connect-corners (get-corner 1 board) 
+                         (turn-corner (get-corner 2 board) dir))
+        (connect-corners (get-corner 3 board) 
+                         (get-corner 4 board))))
+    (= 3 corner)
+    (list->board
+      (concat
+        (connect-corners (get-corner 1 board)
+                         (get-corner 2 board))
+        (connect-corners (turn-corner (get-corner 3 board) dir)
+                         (get-corner 4 board))))
+    (= 4 corner)
+    (list->board
+      (concat
+        (connect-corners (get-corner 1 board)
+                         (get-corner 2 board))
+        (connect-corners (get-corner 3 board)
+                         (turn-corner (get-corner 4 board) dir))))))
+
+
 (def board
-  [[\X 2 3 4 5 6]
-   [7 \O 9 10 11 12]
-   [13 14 \X 16 17 18]
+  [[1 2 3 4 5 6]
+   [7 8 9 10 11 12]
+   [13 14 15 16 17 18]
    [19 20 21 22 23 24]
    [25 26 27 28 29 30]
    [31 32 33 34 35 36]])
 
-(print-board (list->board 
-               (concat 
-                 (connect-corners (turn-corner (get-corner 1 board) 0) 
-                                  (get-corner 2 board))
-                 (connect-corners (get-corner 3 board) 
-                                  (get-corner 4 board)))))
+(print-board (turn 2 0 board))
 
 
 
