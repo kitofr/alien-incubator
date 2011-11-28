@@ -136,9 +136,11 @@
 (turn-corner (get-corner 1 board) 0)
 (turn-corner (get-corner 1 board) 1)
 
-(loop [coll (take 36 (cycle '(1 2 3 4 5 6))) i 0 acc [[][][][][][]]]
-  (if (empty? coll)
-    acc
-    (recur (drop 6 coll) (inc i) (assoc acc i (vec (take 6 coll))))))
+(defn list->board [sq]
+  (loop [coll sq i 0 acc [[][][][][][]]]
+    (if (empty? coll)
+      acc
+      (recur (drop 6 coll) (inc i) (assoc acc i (vec (take 6 coll)))))))
 
+(print-board (list->board (take 36 (cycle '(1 2 3 4 5 6)))))
 ;(play starting-board players)
