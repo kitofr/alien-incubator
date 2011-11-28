@@ -77,21 +77,6 @@
       (apply = (get-indexes [[0 4] [1 3] [2 2] [3 1] [4 0]] board))
       (apply = (get-indexes [[1 5] [2 4] [3 3] [4 2] [5 1]] board))))
 
-(defn play [board players]
-  (do
-    (print-board board)
-    (let [player (first players)]
-      (cond
-        (winner? board) (print (str (first "*** Player: " (next players)) " Wins! ***\n"))
-        (full? board) (print "It's a Draw!\n")
-        true (do
-               (print (str "Select a square, " player ": "))
-               (flush)
-               (let [square (read)]
-                 (if (and square (available? square board))
-                   (recur (move player square board) (next players))
-                   (recur board players))))))))
-
 (defn get-corner [corner board] 
   (cond
     (= 1 corner) 
@@ -162,22 +147,35 @@
                          (turn-corner (get-corner 4 board) dir))))))
 
 
-(def board
-  [[1 2 3 4 5 6]
-   [\X \O \O 10 11 12]
-   [13 14 15 16 17 18]
-   [19 20 21 22 23 24]
-   [25 26 27 28 29 30]
-   [31 32 33 34 35 36]])
-
-
 (defn restore-board [board]
   (loop [sq (flatten board) i 0 acc '()]
     (if (empty? sq)
-      (reverse acc)
+      (list->board (reverse acc))
       (recur (rest sq) (inc i) (cons (if (number? (first sq)) (inc i) (first sq)) acc)))))
 
-(print-board (restore-board (turn 1 0 board)))
+(defn play [board players]
+  (do
+    (print-board board)
+    (let [player (first players)]
+      (cond
+        (winner? board) (print (str "*** Player: " (first (next players)) " Wins! ***\n"))
+        (full? board) (print "It's a Draw!\n")
+        true (do
+               (print (str "Select a square, " player ": "))
+               (flush)
+               (let [square (read)]
+                 (if (and square (available? square board))
+                   (do
+                     (let [b (move player square board)]
+                       (print-board b)
+                       (print "Select a corner to turn: ")
+                       (flush)
+                       (let [corner (read)]
+                         (print "Direction? (0 = CW, 1 = CCW) ")
+                         (flush)
+                         (let [dir (read)]
+                           (recur (restore-board (turn corner dir b)) (next players))))))
+                   (recur board players))))))))
 
 
 ;(play starting-board players)
