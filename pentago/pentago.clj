@@ -178,4 +178,4 @@
                    (recur board players))))))))
 
 
-;(play starting-board players)
+(play starting-board players)
