@@ -124,7 +124,7 @@
                     [4 3] [4 4] [4 5]
                     [5 3] [5 4] [5 5]] board)))
 
-(defn turn [corner dir board] board)
+
 
 (defn turn-corner [corner dir]
   (let [[a b c d e f g h i] corner] dir
@@ -135,5 +135,10 @@
 (get-corner 1 board)
 (turn-corner (get-corner 1 board) 0)
 (turn-corner (get-corner 1 board) 1)
+
+(loop [coll (take 36 (cycle '(1 2 3 4 5 6))) i 0 acc [[][][][][][]]]
+  (if (empty? coll)
+    acc
+    (recur (drop 6 coll) (inc i) (assoc acc i (vec (take 6 coll))))))
 
 ;(play starting-board players)
