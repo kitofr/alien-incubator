@@ -1,3 +1,5 @@
+(ns "pentago")
+
 (def players (cycle ["X" "O"]))
 
 (def starting-board
