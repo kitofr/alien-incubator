@@ -1,4 +1,4 @@
-(ns "pentago")
+(ns pentago)
 
 (def players (cycle ["X" "O"]))
 
@@ -41,9 +41,6 @@
     (print (board->string board))
     (newline)
     (newline)))
-
-(print-board (move (first players) 31 starting-board))
-
 
 (defn full? [board]
   (not (some number? (mapcat identity board))))
