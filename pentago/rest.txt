@@ -1,0 +1,35 @@
+
+GET "current" href=game/{game-id}
+POST: game/new
+resp: 
+      GET "current" href=game/{game-id}
+      PUT "move" href=game/{game-id}/white/move
+      payload: 
+      { board: [ [1 2 3 4 5 6] [...]] }
+      
+PUT:  game/{game-id}/white/move
+      payload:
+      { pos: 1
+        board: [ [ ] ] }
+resp:
+      PUT "turn" href=game/{game-id}/white/turn
+      PUT "pass" href=game/{game-id}/white/pass
+      
+PUT:  game/{game-id}/white/turn
+      payload:
+      { corner: 1
+        direction: CCW
+        board: [ [ ] ] }
+resp:
+      PUT "move" href=game/{game-id}/black/move
+      payload:
+      { board: [ [ ] ] }
+      
+PUT:  game/{game-id}/white/pass
+      payload:
+      { board: [ [ ] ] }
+
+resp:
+      PUT "move" href=game/{game-id}/black/move
+      payload:
+      { board: [ [ ] ] }
