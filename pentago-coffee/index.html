@@ -25,12 +25,12 @@
 
         context.beginPath()
         context.strokeStyle = '#AAA'
-        context.lineWidth   = 2
+        context.lineWidth = 3
 
-        x = y = 40
-        r = 20
+        x = y = width / 10
+        r = width / 20
         padding = 60
-        offset = 200
+        offset = width / 2
 
         for i in [0...3]
           do (i) ->
@@ -47,7 +47,6 @@
       draw_arc = (context, x, y, r) ->
         context.moveTo(x + r, y)
         context.arc(x,y,r,0,Math.PI,false)
-        
 
       jQuery ->
         paintBoard()
