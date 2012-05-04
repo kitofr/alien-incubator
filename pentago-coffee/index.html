@@ -1,7 +1,7 @@
 <html>
   <head><title>Pentago</title></head>
   <body>
-    <canvas width="800" height="800" id="board" onclick="clickHandler(event);"></canvas>
+    <canvas width="400" height="400" id="board" onclick="clickHandler(event);"></canvas>
     <script type="text/coffeescript">
       paintBoard = ->
         board = $('#board')[0]
@@ -27,29 +27,33 @@
         context.strokeStyle = '#AAA'
         context.lineWidth   = 2
 
-        padding = 30
-        start = 110
-        size = 75
+        x = y = 40
+        r = 20
+        padding = 60
+        offset = 200
 
-        for x in [0...3]
-          do (x) ->
-          context.moveTo(padding*x + start + size*(x+1),size)
-          context.arc(padding*x + size*(x+2),size,35,0,Math.PI,false)
-
-        #context.moveTo(padding + start + size * 1,size)
-        #context.arc(padding + size*2,size,35,0,Math.PI,false)
-
-        #context.moveTo(padding * 2 + start + size * 2,size)
-        #context.arc(padding * 2 + size * 3,size,35,0,Math.PI,false)
+        for i in [0...3]
+          do (i) ->
+            for j in [0..2]
+              do (j) ->
+              draw_arc(context, x + padding*i, y + r*3*j, r)
+              draw_arc(context, x + padding*i + offset, y + r*3*j, r)
+              draw_arc(context, x + padding*i, y + r*3*j + offset, r)
+              draw_arc(context, x + padding*i + offset, y + r*3*j + offset, r)
 
         context.stroke()
         context.closePath()
+
+      draw_arc = (context, x, y, r) ->
+        context.moveTo(x + r, y)
+        context.arc(x,y,r,0,Math.PI,false)
+        
 
       jQuery ->
         paintBoard()
 
     </script>
     <script src="coffee-script.js" type="text/javascript" ></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+    <script src="jquery-1.7.1.js" type="text/javascript"></script>
   </body>
 </html>
