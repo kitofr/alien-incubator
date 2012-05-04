@@ -1,10 +1,9 @@
 <html>
   <head><title>Pentago</title></head>
   <body>
-    <canvas width="400" height="400" id="board" onclick="clickHandler(event);"></canvas>
+    <canvas width="400" height="400" id="board"></canvas>
     <script type="text/coffeescript">
-      paintBoard = ->
-        board = $('#board')[0]
+      paintBoard = (board) ->
 
         width = board.width
         height = board.height
@@ -48,8 +47,17 @@
         context.moveTo(x + r, y)
         context.arc(x,y,r,0,Math.PI,false)
 
+      click_handler = (e) ->
+        y = Math.floor(e.clientY / (this.height / 6))
+        x = Math.floor(e.clientX / (this.width / 6))
+        alert("x: " + x + " y: " + y)
+
       jQuery ->
-        paintBoard()
+        board = $('#board')
+        paintBoard(board[0])
+        board.click(click_handler)
+
+        
 
     </script>
     <script src="coffee-script.js" type="text/javascript" ></script>
