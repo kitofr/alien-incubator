@@ -83,53 +83,62 @@
 ; Given a side-effect free function f and an initial value x write a function which returns an infinite lazy sequence of 
 ; x, (f x), (f (f x)), (f (f (f x))), etc.
 	
-(defn problem62
-  [f x]
-  (lazy-seq (seq '( x (problem62 f (f x))))))
-
-(take 5 (problem62 #(* 2 %) 1))
-
-(deftest problem62
-         (is (= (take 5 (__ #(* 2 %) 1)) [1 2 4 8 16]))
-         (is (= (take 100 (__ inc 0)) (take 100 (range))))
-         (is (= (take 9 (__ #(inc (mod % 3)) 1)) (take 9 (cycle [1 2 3])))))
-
-(run-tests)
-
-;81
-; Write a function which returns the intersection of two sets. The intersection is the sub-set of items that each set has in common.
-; 	
-; (= (__ #{0 1 2 3} #{2 3 4 5}) #{2 3})
-; (= (__ #{0 1 2} #{3 4 5}) #{})
-; (= (__ #{:a :b :c :d} #{:c :e :a :f :d}) #{:a :c :d})
+; (defn problem62
+;   [f x]
+;   (cons x
+;         (lazy-seq (problem62 f (f x)))))
+; 
+; (take 5 (problem62 #(* 2 %) 1))
+; 
+; (deftest problem62-tests
+;          (is (= (take 5 (problem62  #(* 2 %) 1)) [1 2 4 8 16]))
+;          (is (= (take 100 (problem62 inc 0)) (take 100 (range))))
+;          (is (= (take 9 (problem62 #(inc (mod % 3)) 1)) (take 9 (cycle [1 2 3])))))
+; 
 
 ;90
 ; Write a function which calculates the Cartesian product of two sets.
-; 	
-; (= (__ #{"ace" "king" "queen"} #{"♠" "♥" "♦" "♣"})
-;    #{["ace"   "♠"] ["ace"   "♥"] ["ace"   "♦"] ["ace"   "♣"]
-;      ["king"  "♠"] ["king"  "♥"] ["king"  "♦"] ["king"  "♣"]
-;      ["queen" "♠"] ["queen" "♥"] ["queen" "♦"] ["queen" "♣"]})
-; (= (__ #{1 2 3} #{4 5})
-;    #{[1 4] [2 4] [3 4] [1 5] [2 5] [3 5]})
-; (= 300 (count (__ (into #{} (range 10))
-;                  (into #{} (range 30)))))
+; (defn problem90 [a b]
+;   (set (for [x a
+;         y b]
+;     [x y])))
+;  	
+; (deftest problem90-tests
+;  (is (= (problem90 #{"ace" "king" "queen"} #{"♠" "♥" "♦" "♣"})
+;     #{["ace"   "♠"] ["ace"   "♥"] ["ace"   "♦"] ["ace"   "♣"]
+;       ["king"  "♠"] ["king"  "♥"] ["king"  "♦"] ["king"  "♣"]
+;       ["queen" "♠"] ["queen" "♥"] ["queen" "♦"] ["queen" "♣"]}))
+;  (is (= (problem90 #{1 2 3} #{4 5})
+;     #{[1 4] [2 4] [3 4] [1 5] [2 5] [3 5]}))
+;  (is (= 300 (count (problem90 (into #{} (range 10))
+;                   (into #{} (range 30)))))))
 
 ;99
 ; Write a function which multiplies two numbers and returns the result as a sequence of its digits.
-; 	
-; (= (__ 1 1) [1])
-; (= (__ 99 9) [8 9 1])
-; (= (__ 999 99) [9 8 9 0 1])
+ 	
+; (fn problem99[a b]
+;   (map #(- (int %) 48) (vec (str (* a b))))) 
+;  
+; (deftest problem99-test
+;  (is (= (problem99 1 1) [1]))
+;  (is (= (problem99 99 9) [8 9 1]))
+;  (is (= (problem99 999 99) [9 8 9 0 1])))
 
 ;107
-; Lexical scope and first-class functions are two of the most basic building blocks of a functional language like Clojure. When you combine the two together, you get something very powerful called lexical closures. With these, you can exercise a great deal of control over the lifetime of your local bindings, saving their values for use later, long after the code you're running now has finished.
-; It can be hard to follow in the abstract, so let's build a simple closure. Given a positive integer n, return a function (f x) which computes xn. Observe that the effect of this is to preserve the value of n for use outside the scope in which it is defined.
-; 
-; 	
-; (= 256 ((__ 2) 16),
-;        ((__ 8) 2))
-; (= [1 8 27 64] (map (__ 3) [1 2 3 4]))
-; (= [1 2 4 8 16] (map #((__ %) 2) [0 1 2 3 4]))
+; Lexical scope and first-class functions are two of the most basic building blocks of a functional language like Clojure. 
+; When you combine the two together, you get something very powerful called lexical closures. With these, you can exercise a great deal 
+; of control over the lifetime of your local bindings, saving their values for use later, long after the code you're running now has finished.
+; It can be hard to follow in the abstract, so let's build a simple closure. Given a positive integer n, return a function (f x) 
+; which computes x^n. Observe that the effect of this is to preserve the value of n for use outside the scope in which it is defined.
+ 
+(defn problem107 [n] (fn [x] (for [i (range n)] (* x))))
 
-; (run-tests)
+((problem107 2) 2)
+ 	
+(deftest problem107-tests
+ (is (= 256 ((problem107 2) 16),
+        ((problem107 8) 2)))
+ (is (= [1 8 27 64] (map (problem107 3) [1 2 3 4])))
+ (is (= [1 2 4 8 16] (map #((problem107 %) 2) [0 1 2 3 4]))))
+
+(run-tests)
