@@ -3,6 +3,7 @@
   <body>
     <canvas width="400" height="400" id="board"></canvas>
     <script type="text/coffeescript">
+      window.cnt = 0
       paintBoard = (board) ->
 
         width = board.width
@@ -49,14 +50,13 @@
 
       draw_circle = (context, x, y, r) ->
         context.moveTo(x + r, y)
-        context.arc(x,y,r,r,Math.PI,true)
+        context.arc(x,y,r,0,2 * Math.PI,true)
 
-      draw_o = (board, x, y) ->
+      draw_o = (board, x, y, fill, stroke) ->
         context = board.getContext('2d')
         width = (board.width / 10)
         height = (board.height / 10)
         context.beginPath()
-        context.strokeStyle = '#000'
         context.lineWidth = 3
         r = width/2
         padding = 60
@@ -65,13 +65,20 @@
         draw_circle(context, width + padding*x + offset, height+r*3*y,r) if x >  2 && y <= 2
         draw_circle(context, width + padding*x, height+r*3*y + offset,r) if x <= 2 && y >  2
         draw_circle(context, width + padding*x + offset, height+r*3*y + offset,r) if x >  2 && y >  2
-        context.fill()
         context.closePath()
+        context.fillStyle = fill
+        context.fill()
+        context.lineWidth = 4
+        context.strokeStyle = stroke
+        context.stroke()
 
       click_handler = (e) ->
         x = Math.floor(e.clientX / (this.width / 6))
         y = Math.floor(e.clientY / (this.height / 6))
-        draw_o(this, x,y)
+        if window.cnt++ % 2 == 0
+          draw_o(this, x,y, '#FF8ED6', 'pink') 
+        else
+          draw_o(this, x,y, '#8ED6FF', 'blue') 
 
       jQuery ->
         board = $('#board')
